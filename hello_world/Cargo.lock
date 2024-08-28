@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "RustFall2024"
+name = "hello_world"
 version = "0.1.0"
