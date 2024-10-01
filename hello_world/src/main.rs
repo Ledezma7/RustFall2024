@@ -1,26 +1,44 @@
-fn main(){
-    const FREEZE_POINT_F: f64 = 32.0;
+use std::fs::{self, OpenOptions};
+use std::io::{self, Read, Write};
 
-    let mut temp_f = FREEZE_POINT_F;
-
-    let initial_temp_c = fahrenheit_to_celcius(temp_f);
-    println!("{}F is {:.2}C", temp_f, initial_temp_c);
-
-    for i in 1..=5 {
-        temp_f += 1.0;
-        let temp_c = fahrenheit_to_celcius(temp_f);
-        println!("{}F is {:.2}C", temp_f, temp_c);
-
-    }  
+struct Car {
+    year: u32,
+    make: String,
+    model: String,
 }
 
-fn fahrenheit_to_celcius(f: f64) -> f64 {
-    (f - 32.0) * 5.0 / 9.0
+fn reading_from_console() {
+    let mut buffer = String::new();
+
+    print!("What year is your car? ");
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut buffer).unwrap();
+    let year: u32 = buffer.trim().parse().unwrap();
+    buffer.clear();
+
+    print!("What's the make? ");
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut buffer).unwrap();
+    let make = buffer.trim().to_string();
+    buffer.clear();
+
+    print!("What's the model? ");
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut buffer).unwrap();
+    let model = buffer.trim().to_string();
+
+    let file_path = "user_info.txt";
+    let content = format!("{} {} {}", year, make, model);
+    fs::write(file_path, content).unwrap();
+
+    println!("Information saved to file.");
+
+    let contents = fs::read_to_string(file_path).unwrap();
+    println!("Content of user_info.txt:\n{}", contents);
 }
 
-fn celsius_to_fahrenheit(c: f64) -> f64 {
-    c * 9.0 / 5.0 + 32.0
+fn main() {
+    reading_from_console();
+
+    
 }
-
-
-
