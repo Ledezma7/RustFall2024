@@ -1,44 +1,57 @@
-use std::fs::{self, OpenOptions};
-use std::io::{self, Read, Write};
+use std::fs::File;
+use std::io::{Write, BufReader, BufRead};
+use std::path::Path;
 
-struct Car {
-    year: u32,
-    make: String,
-    model: String,
+struct Book {
+    title: String,
+    author: String,
+    year: u16,
 }
 
-fn reading_from_console() {
-    let mut buffer = String::new();
+fn save_books(books: &Vec<Book>, filename: &str) {
+    // TODO: Implement this function
+    // Hint: Use File::create() and write!() macro
+    let mut file = File::create(filename).unwrap();
+    for book in books {
+        writeln!(file, "{},{},{}", book.title, book.author, book.year).unwrap();
+    }
+}
 
-    print!("What year is your car? ");
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut buffer).unwrap();
-    let year: u32 = buffer.trim().parse().unwrap();
-    buffer.clear();
+fn load_books(filename: &str) -> Vec<Book> {
+    // TODO: Implement this function
+    // Hint: Use File::open() and BufReader
+    let path = Path::new(filename);
+    let file = File::open(&path).unwrap();
+    let reader = BufReader::new(file);
 
-    print!("What's the make? ");
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut buffer).unwrap();
-    let make = buffer.trim().to_string();
-    buffer.clear();
-
-    print!("What's the model? ");
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut buffer).unwrap();
-    let model = buffer.trim().to_string();
-
-    let file_path = "user_info.txt";
-    let content = format!("{} {} {}", year, make, model);
-    fs::write(file_path, content).unwrap();
-
-    println!("Information saved to file.");
-
-    let contents = fs::read_to_string(file_path).unwrap();
-    println!("Content of user_info.txt:\n{}", contents);
+    let mut books = Vec::new();
+    for line in reader.lines() {
+        let line = line.unwrap();
+        let parts: Vec<&str> = line.split(',').collect();
+        if parts.len() == 3 {
+            let book = Book {
+                title: parts[0].to_string(),
+                author: parts[1].to_string(),
+                year: parts[2].parse().unwrap_or(0),
+            };
+            books.push(book);
+        }
+    }
+    books
 }
 
 fn main() {
-    reading_from_console();
+    let books = vec![
+        Book { title: "1984".to_string(), author: "George Orwell".to_string(), year: 1949 },
+        Book { title: "To Kill a Mockingbird".to_string(), author: "Harper Lee".to_string(), year: 1960 },
+    ];
 
-    
+    save_books(&books, "books.txt");
+    println!("Books saved to file.");
+
+    let loaded_books = load_books("books.txt");
+    println!("Loaded books:");
+    for book in loaded_books {
+        println!("{} by {}, published in {}", book.title, book.author, book.year);
+    }
 }
