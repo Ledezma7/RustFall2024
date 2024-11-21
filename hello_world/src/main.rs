@@ -4,7 +4,7 @@ use std::io::Write;
 use std::thread;
 use std::time::Duration;
 
-// Struct Definitions
+
 #[derive(Debug)]
 struct Bitcoin;
 
@@ -14,12 +14,11 @@ struct Ethereum;
 #[derive(Debug)]
 struct SP500;
 
-// Pricing Trait
 trait Pricing {
     fn fetch_price() -> Result<f64, String>;
 }
 
-// Implementations of the Pricing Trait
+// Implementation of pricing trait
 impl Pricing for Bitcoin {
     fn fetch_price() -> Result<f64, String> {
         let response = ureq::get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd").call();
@@ -84,9 +83,9 @@ fn main() {
             save_to_file("ethereum.txt", &format!("Ethereum price: ${:.2}", price));
         }
 
-        // Fetch and save S&P 500 price
+        // Fetch and save SP500 price
         if let Ok(price) = SP500::fetch_price() {
-            save_to_file("sp500.txt", &format!("S&P 500 price: ${:.2}", price));
+            save_to_file("sp500.txt", &format!("SP500 price: ${:.2}", price));
         }
 
         // Sleep for 10 seconds
