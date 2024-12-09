@@ -1,29 +1,30 @@
-use std::sync::{Arc, Mutex};
-use std::thread;
+mod config;
+mod monitor;
+mod worker;
+
+use config::Config;
+use monitor::{start_monitoring};
+use std::time::Duration;
 
 fn main() {
-    let counter = Arc::new(Mutex::new(0));
-    
-    let mut handles = vec![];
+    let config = Config {
+        num_workers: 10,
+        timeout: Duration::from_secs(5),
+        max_retries: 3,
+    };
 
-    
-    for _ in 0..5 {
-        let counter_clone = Arc::clone(&counter);
-        let handle = thread::spawn(move || {
-            for _ in 0..10 {
-                // Locks the mutex to safely update the counter
-                let mut num = counter_clone.lock().unwrap();
-                *num += 1;
-            }
-        });
-        handles.push(handle);
+    let websites = vec![
+        "https://www.google.com".to_string(),
+        "https://www.github.com".to_string(),
+        "https://doesnotexist.example".to_string(),
+    ];
+
+    println!("Starting monitoring for {} websites...", websites.len());
+    let results = start_monitoring(&websites, &config);
+
+    println!("Monitoring Results: ");
+    for status in results {
+        println!("URL: {}, \nStatus: {:?}, \nResponse Time: {:?}, \nTimestamp: {}",
+                 status.url, status.status, status.response_time, status.timestamp);
     }
-
-    // Waits for all the threads to finish
-    for handle in handles {
-        handle.join().unwrap();
-    }
-
-    // Prints the final value of the counter
-    println!("Final value of counter: {}", *counter.lock().unwrap());
 }
